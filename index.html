@@ -4,7 +4,6 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Undangan Khitanan - Rayyan Dilan</title>
-        <!-- Google Fonts -->
         <link
             href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Prata&family=Roboto:wght@300;400;500&display=swap"
             rel="stylesheet"
@@ -25,6 +24,10 @@
                 box-sizing: border-box;
             }
 
+            html {
+                scroll-behavior: smooth;
+            }
+
             body {
                 background-color: #000;
                 font-family: "Roboto", sans-serif;
@@ -41,14 +44,56 @@
                 background-color: var(--dark-bg);
                 position: relative;
                 box-shadow: 0 0 20px rgba(219, 195, 100, 0.2);
-                overflow: hidden;
             }
 
-            /* Sections */
+            /* --- FIXED PERFORMANCE FIX ---
+               Instead of long scrolling absolute container, we fix it to the viewport window.
+               The browser renders this once and ignores it during scroll cycles.
+            */
+            .stars-container {
+                position: fixed;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100%;
+                max-width: 414px; /* Matches mobile wrapper boundary */
+                height: 100vh;
+                pointer-events: none;
+                z-index: 1;
+            }
+
+            .star {
+                position: absolute;
+                background-color: #fff;
+                border-radius: 50%;
+                opacity: 0;
+                box-shadow:
+                    0 0 4px #fff,
+                    0 0 8px var(--gold);
+                /* transform: translate3d forces GPU hardware rendering */
+                transform: translate3d(0, 0, 0) scale(0.5);
+                animation: twinkle 4s infinite ease-in-out;
+            }
+
+            @keyframes twinkle {
+                0%,
+                100% {
+                    opacity: 0;
+                    transform: translate3d(0, 0, 0) scale(0.5);
+                }
+                50% {
+                    opacity: 0.8;
+                    transform: translate3d(0, 0, 0) scale(1.2);
+                }
+            }
+
+            /* --- Sections --- */
             .section {
                 padding: 60px 20px;
                 text-align: center;
                 border-bottom: 1px solid rgba(219, 195, 100, 0.3);
+                position: relative;
+                z-index: 2; /* Sits smoothly above the fixed background stars */
             }
 
             .hero {
@@ -156,11 +201,92 @@
                 outline: none;
                 background: rgba(255, 255, 255, 0.2);
             }
+
+            /* --- ANIMATION HANDLING --- */
+            .scroll-animate {
+                opacity: 0;
+                transform: translate3d(
+                    0,
+                    20px,
+                    0
+                ); /* Replaced translateY with 3D translation */
+                will-change: transform, opacity;
+                transition:
+                    opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1),
+                    transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            }
+
+            .scroll-animate.show {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
         </style>
     </head>
     <body>
+        <div class="stars-container">
+            <div
+                class="star"
+                style="
+                    top: 10%;
+                    left: 15%;
+                    width: 2px;
+                    height: 2px;
+                    animation-delay: 0.5s;
+                "
+            ></div>
+            <div
+                class="star"
+                style="
+                    top: 25%;
+                    left: 80%;
+                    width: 3px;
+                    height: 3px;
+                    animation-delay: 1.2s;
+                "
+            ></div>
+            <div
+                class="star"
+                style="
+                    top: 40%;
+                    left: 45%;
+                    width: 2px;
+                    height: 2px;
+                    animation-delay: 2.5s;
+                "
+            ></div>
+            <div
+                class="star"
+                style="
+                    top: 55%;
+                    left: 20%;
+                    width: 3px;
+                    height: 3px;
+                    animation-delay: 0.2s;
+                "
+            ></div>
+            <div
+                class="star"
+                style="
+                    top: 70%;
+                    left: 75%;
+                    width: 2px;
+                    height: 2px;
+                    animation-delay: 1.8s;
+                "
+            ></div>
+            <div
+                class="star"
+                style="
+                    top: 85%;
+                    left: 15%;
+                    width: 4px;
+                    height: 4px;
+                    animation-delay: 3s;
+                "
+            ></div>
+        </div>
+
         <div class="mobile-wrapper">
-            <!-- Hero Section -->
             <section class="section hero">
                 <p class="sub-title">Tasyakuran Khitan</p>
                 <h1>Rayyan Dilan Pradipta</h1>
@@ -168,9 +294,8 @@
                 <a href="#detail" class="btn">Buka Undangan</a>
             </section>
 
-            <!-- Profile Section -->
-            <section id="detail" class="section">
-                <img src="images/rayyan.jpeg" alt="Anak" class="profile-img" />
+            <section id="detail" class="section scroll-animate">
+                <img src="images/rayyan.png" alt="Anak" class="profile-img" />
                 <p class="sub-title">Bismillahirahmanirrahim</p>
                 <p>Assalamu'alaikum Warahmatullahi Wabarakatuh</p>
                 <p>
@@ -181,8 +306,7 @@
                 <p>Putra dari Bapak Mulyadi & Ibu Marlinda</p>
             </section>
 
-            <!-- Event Details Section -->
-            <section class="section">
+            <section class="section scroll-animate">
                 <h2>Waktu & Tempat</h2>
                 <div
                     style="
@@ -208,8 +332,7 @@
                 </div>
             </section>
 
-            <!-- RSVP Form Section -->
-            <section class="section">
+            <section class="section scroll-animate">
                 <h2>Konfirmasi Kehadiran</h2>
                 <p>
                     Mohon konfirmasi kehadiran Bapak/Ibu/Saudara/i dengan
@@ -261,22 +384,36 @@
             </section>
         </div>
 
-        <!-- JavaScript for Handling the RSVP -->
         <script>
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("show");
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                },
+                {
+                    threshold: 0.05,
+                    rootMargin: "0px 0px -50px 0px",
+                },
+            );
+
+            const hiddenElements = document.querySelectorAll(".scroll-animate");
+            hiddenElements.forEach((el) => observer.observe(el));
+
+            // RSVP Form Handler
             document
                 .getElementById("rsvpForm")
                 .addEventListener("submit", function (e) {
-                    e.preventDefault(); // Prevents the page from refreshing
-
-                    // 1. Get the values from the form
+                    e.preventDefault();
                     const name = document.getElementById("name").value;
                     const status = document.getElementById("status").value;
                     const guests = document.getElementById("guests").value;
                     const message = document.getElementById("message").value;
 
-                    // 2. Format the message for WhatsApp
-                    const waNumber = "6281234567890"; // REPLACE THIS with your actual WhatsApp number
-
+                    const waNumber = "6281234567890";
                     let waText = `*Konfirmasi Kehadiran Khitanan*\n\n`;
                     waText += `Nama: ${name}\n`;
                     waText += `Kehadiran: ${status}\n`;
@@ -284,7 +421,6 @@
                     waText += `Ucapan: ${message}\n\n`;
                     waText += `Terima kasih!`;
 
-                    // 3. Encode the text for URL and open WhatsApp
                     const waUrl = `https://api.whatsapp.com/send?phone=${waNumber}&text=${encodeURIComponent(waText)}`;
                     window.open(waUrl, "_blank");
                 });
